@@ -67,6 +67,7 @@
 # #	$@ 代表目标
 # #	$^ 代表所有的依赖对象
 # #	$< 代表第一个依赖对象
+# # $? 所有比目标新的依赖目标的集合
 
 
 # #定义命令包（类似自定义函数）
@@ -102,6 +103,9 @@
 # source := $($(al)_objs:.o=.c)   #这里会使用1_objs.
 
 # #环境变量：如CFLAGS,这个时寡欲编译的参数的环境变量
+#  CFLAGS: C代码编译器参数的环境变量
+#  CPPFLAGS:C++代码编译器的环境变量
+#  LDFLAGS: 连接器参数的环境变量
 # #如果makefile中没有定义，那就使用整个环境变量里面的整个CFLAGS; 如果makefile中定义了，那就使用makefile中的。
 
 # clean:
@@ -156,97 +160,125 @@
 
 
 
-#version4: 使用各种字符串操作函数: $(<func_name>  <arguments>) or ${<func_name>  <arguments>}
-#<function_name>就是函数名,后面用空格隔开参数.<arguments>就是参数,参数之间用逗号隔开.
+# #version4: 使用各种字符串操作函数: $(<func_name>  <arguments>) or ${<func_name>  <arguments>}
+# #<function_name>就是函数名,后面用空格隔开参数.<arguments>就是参数,参数之间用逗号隔开.
 
 
-#subst: 替换函数 $(subst <from>,<to>,<text>)
-# input1: 被替换子串(原来子串)
-# input2: 替换子串(新的子串)
-# input3: 替换操作的对象
-comma := ,
-empty := 
-space := $(empty) $(empty)
-foo := a b c
-bar := $(subst $(space),$(comma),$(foo))
-define my-fun-test
-@echo $(bar)
-endef
+# #subst: 替换函数 $(subst <from>,<to>,<text>)
+# # input1: 被替换子串(原来子串)
+# # input2: 替换子串(新的子串)
+# # input3: 替换操作的对象
+# comma := ,
+# empty := 
+# space := $(empty) $(empty)
+# foo := a b c
+# bar := $(subst $(space),$(comma),$(foo))
+# define my-fun-test
+# @echo $(bar)
+# endef
 
 
-#patsubst: 模式字符串替换函数  $(patsubst <pattern>,<replacement>,<text>)
-# input1: 被替换子串(原来子串)
-# input2: 替换子串(新的子串)
-# input3: 替换操作的对象
-src :=$(wildcard *.c)
-objs :=$(patsubst %.c,%.o, $(src))
-objs2 :=$(src:%.c=%.o)
+# #patsubst: 模式字符串替换函数  $(patsubst <pattern>,<replacement>,<text>)
+# # input1: 被替换子串(原来子串)
+# # input2: 替换子串(新的子串)
+# # input3: 替换操作的对象
+# src :=$(wildcard *.c)
+# objs :=$(patsubst %.c,%.o, $(src))
+# objs2 :=$(src:%.c=%.o)
 
 
-#strip: 去字符串空头或者空尾的函数  $(strip " a b c ")
-tmp := $(strip  a b c  )
+# #strip: 去字符串空头或者空尾的函数  $(strip " a b c ")
+# tmp := $(strip  a b c  )
 
 
-#findstring: 查找字符串的函数   $(findstring <find>,<in>)
-tmp := $(findstring a,"a b c")
-tmp2 := $(findstring a,"b c")
+# #findstring: 查找字符串的函数   $(findstring <find>,<in>)
+# tmp := $(findstring a,"a b c")
+# tmp2 := $(findstring a,"b c")
 
 
-#filter: 过滤函数    $(filter <pattern...>,<text>)
-allfile :=$(wildcard *.c) $(wildcard *.h)
-tmp :=$(filter %.h %.a,$(allfile))
+# #filter: 过滤函数    $(filter <pattern...>,<text>)
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# tmp :=$(filter %.h %.a,$(allfile))
 
 
-#filter-out: 反过滤函数    $(filter-out <pattern...>, <text>)
-allfile :=$(wildcard *.c) $(wildcard *.h)
-tmp2 :=$(filter-out %.h %.a,$(allfile))
+# #filter-out: 反过滤函数    $(filter-out <pattern...>, <text>)
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# tmp2 :=$(filter-out %.h %.a,$(allfile))
 
-#sort: 排序函数   $(sort <list>)
-allfile :=$(wildcard *.c) $(wildcard *.h)
-list :=$(sort $(allfile))
-
-
-
-
-#word: 取单个单词函数    $(Word <n>,<text>)  去text中第n个单词
-allfile :=$(wildcard *.c) $(wildcard *.h)
-third-word :=$(word 3,$(allfile))
-
-
-
-#wordlist: 去一个区间的单词    $(wordlist <m>,<n>,<text>)
-allfile :=$(wildcard *.c) $(wildcard *.h)
-third-six :=$(wordlist 3,6,$(allfile))
-
-
-#words: 统计单词个数     $(words <text>)
-allfile :=$(wildcard *.c) $(wildcard *.h)
-number :=$(words $(allfile))
-
-#firstword: 提取第一个单词函数    $(firstword <text>) 
-#这个函数等价于: $(word 1,<text>)
-allfile :=$(wildcard *.c) $(wildcard *.h)
-first :=$(firstword $(allfile))
-
-
-#字符串函数的综合应用: 使用VPATH变量来指定依赖文件的搜索路径.
-VPATH := src:../sub:/usr/lib/include
-override CFLAGS += $(patsubst %, -I%, $(subst :, , $(VPATH)))
+# #sort: 排序函数   $(sort <list>)
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# list :=$(sort $(allfile))
 
 
 
 
-clean:
-	$(my-fun-test)
-	@echo $(objs)
-	@echo $(objs2)
+# #word: 取单个单词函数    $(Word <n>,<text>)  去text中第n个单词
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# third-word :=$(word 3,$(allfile))
+
+
+
+# #wordlist: 去一个区间的单词    $(wordlist <m>,<n>,<text>)
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# third-six :=$(wordlist 3,6,$(allfile))
+
+
+# #words: 统计单词个数     $(words <text>)
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# number :=$(words $(allfile))
+
+# #firstword: 提取第一个单词函数    $(firstword <text>) 
+# #这个函数等价于: $(word 1,<text>)
+# allfile :=$(wildcard *.c) $(wildcard *.h)
+# first :=$(firstword $(allfile))
+
+
+# #字符串函数的综合应用: 使用VPATH变量来指定依赖文件的搜索路径.
+# VPATH := src:../sub:/usr/lib/include
+# override CFLAGS += $(patsubst %, -I%, $(subst :, , $(VPATH)))
+
+
+
+
+# clean:
+# 	$(my-fun-test)
+# 	@echo $(objs)
+# 	@echo $(objs2)
+# 	@echo $(tmp)
+# 	@echo $(tmp2)
+# 	@echo $(list)
+# 	@echo $(allfile)
+# 	@echo $(third-word)
+# 	@echo $(third-six)
+# 	@echo $(number)
+# 	@echo $(first)
+# 	@echo $(CFLAGS)
+
+
+#version5: 目录文件名操作函数:
+ #dir:  取目录函数    $(dir <names...>)
+ tmp :=$(dir src/foo.c hello)
+
+
+#notdir: 取文件    $(notdir <names...>)
+tmp :=$(notdir src/foo.c hello)
+
+
+
+#suffix: 取后缀函数    $(suffix <names...>)
+tmp :=$(suffix src/foo.c abc/a.h hello)
+
+
+#basename: 取前缀函数   $(basename <names...>)
+tmp :=$(basename src/foo.c abc/a.h hello)
+
+#addsuffix: 添加后缀函数   $(addsuffix <suffix>, <names...>)
+
+#addprefix: 添加前缀函数   $(addprefix  <prefix>, <names...>)
+
+#join: 添加前缀函数   $(join <list1>, <list2>)
+tmp :=$(join "aaa  bbb", "111 222 333")
+
+ clean:
 	@echo $(tmp)
-	@echo $(tmp2)
-	@echo $(list)
-	@echo $(allfile)
-	@echo $(third-word)
-	@echo $(third-six)
-	@echo $(number)
-	@echo $(first)
-	@echo $(CFLAGS)
 	
