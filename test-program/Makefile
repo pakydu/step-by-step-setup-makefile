@@ -71,3 +71,16 @@ clean:
 #	$@ 代表目标
 #	$^ 代表所有的依赖对象
 #	$< 代表第一个依赖对象
+
+
+#定义命令包（类似自定义函数）
+define my-test
+pwd
+ls -al $@
+endef
+
+
+
+clean:
+	echo $(src)
+	$(my-test)
