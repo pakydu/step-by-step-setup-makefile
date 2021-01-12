@@ -127,7 +127,11 @@ libs_for_gcc := -lgnu
 normal_libs :=
 
 #CC=gcc
-#条件判断编译
+#条件判断编译: 
+#	ifeq(a,b) ...endif
+#	ifneq(q,b) ...endif
+#	ifdef a  ...endif
+#	ifndef a ...endif
 ifeq ($(CC),gcc)
 CFLAGS= -Wall -O -g $(libs_for_gcc) -I ./sub/
 else
@@ -142,7 +146,7 @@ $(PROGRAM): $(objs) $(deps)
 
 %.d:%.c
 	$(CC) -MM $(CFLAGS) $<  >$@
-	$(CC) -MM $< | sed s/\\.o/.d/ >>$@
+	#$(CC) -MM $(CFLAGS) $< | sed 's/\\.o/.d/'g >>$@
 %.o:%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
