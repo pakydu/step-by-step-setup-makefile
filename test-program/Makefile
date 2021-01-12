@@ -114,42 +114,139 @@
 # 	@echo $(source)
 
 
-#version 3: 使用条件编译
+# #version 3: 使用条件编译
+# src := $(wildcard *.c) $(wildcard ./sub/*.c)
+# objs := $(src:%.c=%.o)
+# deps := $(src:%.c=%.d)
 
-src := $(wildcard *.c) $(wildcard ./sub/*.c)
-objs := $(src:%.c=%.o)
-deps := $(src:%.c=%.d)
+
+# PROGRAM := test-bin
+
+# libs_for_gcc := -lgnu
+# normal_libs :=
+
+# #CC=gcc
+# #条件判断编译: 
+# #	ifeq(a,b) ...endif
+# #	ifneq(q,b) ...endif
+# #	ifdef a  ...endif
+# #	ifndef a ...endif
+# ifeq ($(CC),gcc)
+# CFLAGS= -Wall -O -g $(libs_for_gcc) -I ./sub/
+# else
+# CFLAGS= -Wall -O -g $(normal_libs) -I ./sub/
+# endif
+
+# all: $(PROGRAM)
+
+# $(PROGRAM): $(objs) $(deps)
+# 	@echo $(objs)
+# 	$(CC) $(CFLAGS) -o $@ $(objs)
+
+# %.d:%.c
+# 	$(CC) -MM $(CFLAGS) $<  >$@
+# 	#$(CC) -MM $(CFLAGS) $< | sed 's/\\.o/.d/'g >>$@
+# %.o:%.c
+# 	$(CC) $(CFLAGS) -c -o $@ $<
+
+# .PHONY: clean
+# clean:
+# 	rm -f $(objs) $(deps) $(PROGRAM)
 
 
-PROGRAM := test-bin
 
-libs_for_gcc := -lgnu
-normal_libs :=
 
-#CC=gcc
-#条件判断编译: 
-#	ifeq(a,b) ...endif
-#	ifneq(q,b) ...endif
-#	ifdef a  ...endif
-#	ifndef a ...endif
-ifeq ($(CC),gcc)
-CFLAGS= -Wall -O -g $(libs_for_gcc) -I ./sub/
-else
-CFLAGS= -Wall -O -g $(normal_libs) -I ./sub/
-endif
+#version4: 使用各种字符串操作函数: $(<func_name>  <arguments>) or ${<func_name>  <arguments>}
+#<function_name>就是函数名,后面用空格隔开参数.<arguments>就是参数,参数之间用逗号隔开.
 
-all: $(PROGRAM)
 
-$(PROGRAM): $(objs) $(deps)
-	@echo $(objs)
-	$(CC) $(CFLAGS) -o $@ $(objs)
+#subst: 替换函数 $(subst <from>,<to>,<text>)
+# input1: 被替换子串(原来子串)
+# input2: 替换子串(新的子串)
+# input3: 替换操作的对象
+comma := ,
+empty := 
+space := $(empty) $(empty)
+foo := a b c
+bar := $(subst $(space),$(comma),$(foo))
+define my-fun-test
+@echo $(bar)
+endef
 
-%.d:%.c
-	$(CC) -MM $(CFLAGS) $<  >$@
-	#$(CC) -MM $(CFLAGS) $< | sed 's/\\.o/.d/'g >>$@
-%.o:%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
 
-.PHONY: clean
+#patsubst: 模式字符串替换函数  $(patsubst <pattern>,<replacement>,<text>)
+# input1: 被替换子串(原来子串)
+# input2: 替换子串(新的子串)
+# input3: 替换操作的对象
+src :=$(wildcard *.c)
+objs :=$(patsubst %.c,%.o, $(src))
+objs2 :=$(src:%.c=%.o)
+
+
+#strip: 去字符串空头或者空尾的函数  $(strip " a b c ")
+tmp := $(strip  a b c  )
+
+
+#findstring: 查找字符串的函数   $(findstring <find>,<in>)
+tmp := $(findstring a,"a b c")
+tmp2 := $(findstring a,"b c")
+
+
+#filter: 过滤函数    $(filter <pattern...>,<text>)
+allfile :=$(wildcard *.c) $(wildcard *.h)
+tmp :=$(filter %.h %.a,$(allfile))
+
+
+#filter-out: 反过滤函数    $(filter-out <pattern...>, <text>)
+allfile :=$(wildcard *.c) $(wildcard *.h)
+tmp2 :=$(filter-out %.h %.a,$(allfile))
+
+#sort: 排序函数   $(sort <list>)
+allfile :=$(wildcard *.c) $(wildcard *.h)
+list :=$(sort $(allfile))
+
+
+
+
+#word: 取单个单词函数    $(Word <n>,<text>)  去text中第n个单词
+allfile :=$(wildcard *.c) $(wildcard *.h)
+third-word :=$(word 3,$(allfile))
+
+
+
+#wordlist: 去一个区间的单词    $(wordlist <m>,<n>,<text>)
+allfile :=$(wildcard *.c) $(wildcard *.h)
+third-six :=$(wordlist 3,6,$(allfile))
+
+
+#words: 统计单词个数     $(words <text>)
+allfile :=$(wildcard *.c) $(wildcard *.h)
+number :=$(words $(allfile))
+
+#firstword: 提取第一个单词函数    $(firstword <text>) 
+#这个函数等价于: $(word 1,<text>)
+allfile :=$(wildcard *.c) $(wildcard *.h)
+first :=$(firstword $(allfile))
+
+
+#字符串函数的综合应用: 使用VPATH变量来指定依赖文件的搜索路径.
+VPATH := src:../sub:/usr/lib/include
+override CFLAGS += $(patsubst %, -I%, $(subst :, , $(VPATH)))
+
+
+
+
 clean:
-	rm -f $(objs) $(deps) $(PROGRAM)
+	$(my-fun-test)
+	@echo $(objs)
+	@echo $(objs2)
+	@echo $(tmp)
+	@echo $(tmp2)
+	@echo $(list)
+	@echo $(allfile)
+	@echo $(third-word)
+	@echo $(third-six)
+	@echo $(number)
+	@echo $(first)
+	@echo $(CFLAGS)
+	
