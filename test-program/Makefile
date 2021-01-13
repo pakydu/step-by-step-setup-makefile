@@ -50,7 +50,8 @@
 # #gcc -MM main.c  自动生成头文件的依赖关系.
 
 # #make -n or --just-print:   这个参数让make过程只显示命令，不执行它.
-# #make -s or --slient:       这个参数让make全面禁止命令显示.
+# #make -s or --slient:       这个参数让make全面禁止命令显示. -->这样我们就不需要给每个命令前面添加@字符了。
+
 
 # #如何标记命令为不在意失败:  给命令前加-， 如-rm *.o
 
@@ -257,47 +258,47 @@
 # 	@echo $(CFLAGS)
 
 
-#version5: 目录文件名操作函数:
- #dir:  取目录函数    $(dir <names...>)
- tmp :=$(dir src/foo.c hello)
+# #version5: 目录文件名操作函数:
+#  #dir:  取目录函数    $(dir <names...>)
+#  tmp :=$(dir src/foo.c hello)
 
 
-#notdir: 取文件    $(notdir <names...>)
-tmp :=$(notdir src/foo.c hello)
-
-
-
-#suffix: 取后缀函数    $(suffix <names...>)
-tmp :=$(suffix src/foo.c abc/a.h hello)
-
-
-#basename: 取前缀函数   $(basename <names...>)
-tmp :=$(basename src/foo.c abc/a.h hello)
-
-#addsuffix: 添加后缀函数   $(addsuffix <suffix>, <names...>)
-
-#addprefix: 添加前缀函数   $(addprefix  <prefix>, <names...>)
-
-#join: 添加前缀函数   $(join <list1>, <list2>)
-tmp :=$(join "aaa  bbb", "111 222 333")
+# #notdir: 取文件    $(notdir <names...>)
+# tmp :=$(notdir src/foo.c hello)
 
 
 
-#foreach函数： 类似编程语言里面的循环语句， 
-# $(foreach <var>,<list>,<text>)
-# 把<list>中的单词逐个取出放到<var>里，然后执行<text>所包含的表达式。
-# 每次<text>会返回一个字符串，循环过程中，<text>的所有返回值会议空格间隔，最后<text>返回整个字符串。
-names := a b c d
-files :=$(foreach n, $(names),$(n).o)
+# #suffix: 取后缀函数    $(suffix <names...>)
+# tmp :=$(suffix src/foo.c abc/a.h hello)
 
 
-#origin 函数： 返回变量是从哪里定义的。
-tmp :=$(origin CC)
+# #basename: 取前缀函数   $(basename <names...>)
+# tmp :=$(basename src/foo.c abc/a.h hello)
+
+# #addsuffix: 添加后缀函数   $(addsuffix <suffix>, <names...>)
+
+# #addprefix: 添加前缀函数   $(addprefix  <prefix>, <names...>)
+
+# #join: 添加前缀函数   $(join <list1>, <list2>)
+# tmp :=$(join "aaa  bbb", "111 222 333")
 
 
-#shell 函数： $(shell command)
-#command 就是操作系统支持的shell命令
-files :=$(shell ls *.c)
+
+# #foreach函数： 类似编程语言里面的循环语句， 
+# # $(foreach <var>,<list>,<text>)
+# # 把<list>中的单词逐个取出放到<var>里，然后执行<text>所包含的表达式。
+# # 每次<text>会返回一个字符串，循环过程中，<text>的所有返回值会议空格间隔，最后<text>返回整个字符串。
+# names := a b c d
+# files :=$(foreach n, $(names),$(n).o)
+
+
+# #origin 函数： 返回变量是从哪里定义的。
+# tmp :=$(origin CC)
+
+
+# #shell 函数： $(shell command)
+# #command 就是操作系统支持的shell命令
+# files :=$(shell ls *.c)
 
 
 # ERROR_001 := xxx
@@ -306,8 +307,22 @@ files :=$(shell ls *.c)
 # $(error error is $(ERROR_001))
 # endif
 
+#call函数：用来创建新的参数话的函数: $(call <expression>,<parm1>,<parm2>...)
+# 当make执行整个函数时，<expression>中的变量，如$(1),$(2)等，就会被参数<parm1>,<parm2>等依次取代。最终返回了替换后的<expression>。
+replace = $(1) $(2)
+tmp = $(call replace,a,b,c)
+
+depend = $(depend_$(1)) $(1)
+depend_libCom      :=
+depend_test1       :=$(call depend,libCom)
+
  clean:
 	@echo $(tmp)
+	@echo $(depend_test1)
 	@echo $(CC)
-	@echo $(files)
+	echo $(files)
 	
+
+
+# #version 6: 使用外部的文件定义的各种编译时需要的变量，如CC， CFLAGS, LDFLAGS, define values...
+# include 
