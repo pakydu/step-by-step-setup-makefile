@@ -281,6 +281,33 @@ tmp :=$(basename src/foo.c abc/a.h hello)
 #join: 添加前缀函数   $(join <list1>, <list2>)
 tmp :=$(join "aaa  bbb", "111 222 333")
 
+
+
+#foreach函数： 类似编程语言里面的循环语句， 
+# $(foreach <var>,<list>,<text>)
+# 把<list>中的单词逐个取出放到<var>里，然后执行<text>所包含的表达式。
+# 每次<text>会返回一个字符串，循环过程中，<text>的所有返回值会议空格间隔，最后<text>返回整个字符串。
+names := a b c d
+files :=$(foreach n, $(names),$(n).o)
+
+
+#origin 函数： 返回变量是从哪里定义的。
+tmp :=$(origin CC)
+
+
+#shell 函数： $(shell command)
+#command 就是操作系统支持的shell命令
+files :=$(shell ls *.c)
+
+
+# ERROR_001 := xxx
+
+# ifdef ERROR_001
+# $(error error is $(ERROR_001))
+# endif
+
  clean:
 	@echo $(tmp)
+	@echo $(CC)
+	@echo $(files)
 	
