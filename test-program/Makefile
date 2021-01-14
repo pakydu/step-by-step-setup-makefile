@@ -309,20 +309,68 @@
 
 #call函数：用来创建新的参数话的函数: $(call <expression>,<parm1>,<parm2>...)
 # 当make执行整个函数时，<expression>中的变量，如$(1),$(2)等，就会被参数<parm1>,<parm2>等依次取代。最终返回了替换后的<expression>。
-replace = $(1) $(2)
-tmp = $(call replace,a,b,c)
+# replace = $(1) $(2)
+# tmp = $(call replace,a,b,c)
 
-depend = $(depend_$(1)) $(1)
-depend_libCom      :=
-depend_test1       :=$(call depend,libCom)
+# depend = $(depend_$(1)) $(1)
+# depend_libCom      :=
+# depend_test1       :=$(call depend,libCom)
 
- clean:
-	@echo $(tmp)
-	@echo $(depend_test1)
-	@echo $(CC)
-	echo $(files)
+#  clean:
+# 	@echo $(tmp)
+# 	@echo $(depend_test1)
+# 	@echo $(CC)
+# 	echo $(files)
 	
 
 
 # #version 6: 使用外部的文件定义的各种编译时需要的变量，如CC， CFLAGS, LDFLAGS, define values...
-# include 
+# include makefile pattern.
+
+include $(ROOT)/mkEnv.mk
+
+
+#define project target value.
+TARGET_PREFIX := test1
+PROJECT_TARGET := $(TARGET_PREFIX)
+PROJECT_MAP := $(TARGET_PREFIX).map
+PROJECT_DES_PATH := $(PROGRAM_PATH)
+
+
+#append the complain used resource.
+PROJECT_IFLAGS = $(IFLAGS) -I./sub/ -I$(ROOT)/libCom/include
+PROJECT_CFLAGS = $(CFLAGS) 
+PROJECT_LDFLAGS = $(LDFLAGS)  -L/$(LIB_SHARE_PATH)  -lCom 
+
+
+#get the soruce code resource.
+PROJECT_SRC = $(wildcard ./*.c) $(wildcard ./sub/*.c)
+PROJECT_DEPENDS =$(patsubst %.c,%.o,$(PROJECT_SRC))
+
+
+
+#start buidl steps:
+all:$(PROJECT_TARGET)
+	@echo -e "INSTALL - $(PROJECT_TARGET)\nINSTALL - $(PROJECT_MAP)"
+	@mkdir -p $(PROJECT_DES_PATH)
+	@cp -f $(PROJECT_TARGET) $(PROJECT_DES_PATH)
+	@mkdir -p $(MAP_FILE_PATH)
+	@cp -f $(PROJECT_MAP) $(MAP_FILE_PATH)
+
+
+$(PROJECT_TARGET):$(PROJECT_DEPENDS)
+	@echo -e "Buidling target -- $@"
+	@echo $(notdir $(basename $@))
+	$(CC) -o $@ $^ $(PROJECT_LDFLAGS)
+
+%.o:%.c
+	@echo -e "Complain the Obj -- $@"
+	$(CC) $(PROJECT_CFLAGS)  $(PROJECT_IFLAGS) -c -o $@ $<
+
+clean:
+	@echo "Clean "$(PROJECT_TARGET)
+	@find ./ \( -name "*.o" -o -name "*.d" \) -exec rm -f '{}' \;
+	@rm -f $(PROJECT_MAP) $(PROJECT_TARGET)
+
+
+-include $(PROJECT_DEPEND:.o=.d)

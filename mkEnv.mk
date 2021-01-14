@@ -2,7 +2,7 @@
 
 #define the toolchain's values:
 TOOLCHAIN_ROOT :=/usr
-SYSROOTS :=/
+#SYSROOTS :=/
 CROSS_PATH :=$(TOOLCHAIN_ROOT)/bin/
 CROSS_PERFIX :=
 
@@ -27,10 +27,12 @@ export MAP_FILE_PATH :=$(ROOT)/maps/
 
 #define how to create the .d and map files. -----------------------------------------
 CFLAGS=-MMD -MP -MF"$(@:%.o=%.d)"
+#LDFLAGS=-Wl,-Map=$(notdir $(basename $@)).map
 LDFLAGS=-Wl,-Map=$(notdir $(basename $@)).map
 
 
 #base on the makefile's input enviroment: -DDEBUG_ENABLE, we can control the complain debug level...----------------
+OUTPUT_FILE:=@
 ifdef $(DEBUG_ENABLE)
   SHOW_DEBUG :=y
   LDFLAGS +=-rdynamic
@@ -71,7 +73,7 @@ IFLAGS :=-I$(SYSROOTS)/usr/include
 CFLAGS += --sysroot=$(SYSROOTS) $(OPTIMIZATION_LEVEL) -Wall  -fmessage-length=0
 
 #链接选项累加
-LDFLAGS += --sysroot=$(SYSROOTS) -Wl,-rpath-link $(SYSROOTS)/lib -Wl,rpath-link $(SYSROOTS)/usr/lib  -L$(SYSROOTS)/lib
+LDFLAGS += --sysroot=$(SYSROOTS) -Wl,-rpath-link $(SYSROOTS)/lib -Wl,-rpath-link $(SYSROOTS)/usr/lib  -L$(SYSROOTS)/lib
 
 
 
