@@ -327,7 +327,8 @@
 # #version 6: 使用外部的文件定义的各种编译时需要的变量，如CC， CFLAGS, LDFLAGS, define values...
 # include makefile pattern.
 
-include $(ROOT)/mkEnv.mk
+include $(BASE)/mkEnv.mk
+
 
 
 #define project target value.
@@ -338,7 +339,7 @@ PROJECT_DES_PATH := $(PROGRAM_PATH)
 
 
 #append the complain used resource.
-PROJECT_IFLAGS = $(IFLAGS) -I./sub/ -I$(ROOT)/libCom/include
+PROJECT_IFLAGS = $(IFLAGS) -I./sub/ -I$(BASE)/library-prjs/libCom/include
 PROJECT_CFLAGS = $(CFLAGS) 
 PROJECT_LDFLAGS = $(LDFLAGS)  -L/$(LIB_SHARE_PATH)  -lCom 
 

@@ -1,9 +1,10 @@
 /*
- * ²Ù×÷ÐÅºÅÁ¿µÄº¯Êý¿â£¬°üÀ¨³¬Ê±ºÍ²»³¬Ê±µÄ¡£
+ * ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½Äºï¿½ï¿½ï¿½ï¿½â£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Í²ï¿½ï¿½ï¿½Ê±ï¿½Ä¡ï¿½
  */
 #include <comlib.h>
 #include <sys/sem.h>
 #include <setjmp.h>
+#include <unistd.h>
 
 typedef union semun{
 	int val;
@@ -26,6 +27,7 @@ int Semop(int nSid, int nIndex , int nVal)
 	struct sembuf sb;
 	sb.sem_num = nIndex;
 	sb.sem_op = nVal;
+	sb.sem_flg = 0;
 	sb.sem_flg = sb.sem_flg & ~SEM_UNDO;
 	sb.sem_flg = sb.sem_flg & ~IPC_NOWAIT;
 
@@ -42,6 +44,7 @@ int SemopNowait(int nSid, int nIndex , int nVal)
 	struct sembuf sb;
 	sb.sem_num = nIndex;
 	sb.sem_op = nVal;
+	sb.sem_flg = 0;
 	sb.sem_flg = sb.sem_flg & ~SEM_UNDO;
 	sb.sem_flg = sb.sem_flg | ~IPC_NOWAIT;
 

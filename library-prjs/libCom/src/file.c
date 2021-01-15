@@ -1,4 +1,6 @@
 #include <comlib.h>
+#include <unistd.h>
+
 int ReadFile(int nFile, void * pData, int * pSize)
 {
 	int nLeft, nRead;
@@ -40,7 +42,7 @@ int WriteFile(int nFile, void* pData, int nSize)
 
 int ReadFileTime(int nFile, void * pData, int * pnSize, int nTimeout)
 {
-	int nLeft, nRead;
+	int nLeft = 0, nRead = 0;
 	int nUseTime = 0;
 	time_t t1, t2;
 	char *pcData;
@@ -54,15 +56,15 @@ int ReadFileTime(int nFile, void * pData, int * pnSize, int nTimeout)
 	while (nLeft > 0)
 	{
 		if (nTimeout != 0) nTimeout -= nUseTime;
-		FD_ZERO(&fdsRead);		/* ÉèÖÃ¼à¿ØÎÄ¼þ¼¯ºÏ */
+		FD_ZERO(&fdsRead);		/* ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ */
 		FD_SET(nFile, &fdsRead);
-		timeval1.tv_sec = nTimeout;	/* ÉèÖÃ³¬Ê±Ê±¼ä */
+		timeval1.tv_sec = nTimeout;	/* ï¿½ï¿½ï¿½Ã³ï¿½Ê±Ê±ï¿½ï¿½ */
 		timeval1.tv_usec = 0;
 		t1 = 0;
 		t2 = 0;
 		time(&t1);
 		nFlag = select(nFile + 1, &fdsRead, NULL, NULL, &timeval1);
-		if (nFlag == 0)			/* ³¬Ê±£¬ÍË³ö */
+		if (nFlag == 0)			/* ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ë³ï¿½ */
 		{
 			*pnSize = *pnSize - nLeft;
 			ASSERTEXT(0, 1);
@@ -77,13 +79,13 @@ int ReadFileTime(int nFile, void * pData, int * pnSize, int nTimeout)
 				nUseTime = t2 - t1;
 			}
 		}
-		else				/*  Õý³£¶ÁÈ¡ */ 
+		else				/*  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ */ 
 		{
 			time(&t2);
 			nUseTime = t2 - t1;
-			if ((nRead = read(nFile, pcData, nLeft)) < 0)	/* ¶ÁÈ¡ */
+			if ((nRead = read(nFile, pcData, nLeft)) < 0)	/* ï¿½ï¿½È¡ */
 			{
-				if (errno != EINTR)   ASSERT(0);	/* ·ÇÐÅºÅÖÐ¶ÏÀà´íÎó */
+				if (errno != EINTR)   ASSERT(0);	/* ï¿½ï¿½ï¿½Åºï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 				nRead = 0;
 			}
 			else if (nRead == 0) break;
@@ -97,7 +99,7 @@ int ReadFileTime(int nFile, void * pData, int * pnSize, int nTimeout)
 
 int WriteFileTime(int nFile, void * pData, int nSize, int nTimeout)
 {
-	int nLeft, nWrite;
+	int nLeft = 0, nWrite = 0;
 	int nUseTime = 0;
 	const char *pcData;
 	int nFlag;

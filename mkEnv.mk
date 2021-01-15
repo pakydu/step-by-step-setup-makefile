@@ -1,4 +1,7 @@
 #defne the global values
+CURDIR:=`pwd`
+SHELL:=/bin/bash
+BASE:=$(shell str="$(strip $(BASE))";if [ $${str:0:1} = "/" ]; then echo $(BASE);else echo $(CURDIR)/$(BASE); fi)
 
 #define the toolchain's values:
 TOOLCHAIN_ROOT :=/usr
@@ -6,18 +9,13 @@ TOOLCHAIN_ROOT :=/usr
 CROSS_PATH :=$(TOOLCHAIN_ROOT)/bin/
 CROSS_PERFIX :=
 
-##define project values:
-#define my-create_folder
-$(shell mkdir -p $(ROOT)/bin/)
-$(shell mkdir -p $(ROOT)/lib/)
-$(shell mkdir -p $(ROOT)/maps/)
-#endef
+
 
 #$(my-create_folder)
 
-export PROGRAM_PATH :=$(ROOT)/bin/
-export LIB_SHARE_PATH :=$(ROOT)/lib/
-export MAP_FILE_PATH :=$(ROOT)/maps/
+export PROGRAM_PATH :=$(BASE)/bin/
+export LIB_SHARE_PATH :=$(BASE)/lib/
+export MAP_FILE_PATH :=$(BASE)/maps/
 
 
 
@@ -31,7 +29,7 @@ CFLAGS=-MMD -MP -MF"$(@:%.o=%.d)"
 LDFLAGS=-Wl,-Map=$(notdir $(basename $@)).map
 
 
-#base on the makefile's input enviroment: -DDEBUG_ENABLE, we can control the complain debug level...----------------
+#BASE on the makefile's input enviroment: -DDEBUG_ENABLE, we can control the complain debug level...----------------
 OUTPUT_FILE:=@
 ifdef $(DEBUG_ENABLE)
   SHOW_DEBUG :=y
@@ -77,3 +75,4 @@ LDFLAGS += --sysroot=$(SYSROOTS) -Wl,-rpath-link $(SYSROOTS)/lib -Wl,-rpath-link
 
 
 
+export BASE OUTPUT_FILE

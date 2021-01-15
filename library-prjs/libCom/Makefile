@@ -1,4 +1,4 @@
-include $(ROOT)/mkEnv.mk
+include $(BASE)/mkEnv.mk
 
 
 

@@ -1,4 +1,6 @@
 #include <comlib.h>
+#include <unistd.h>
+
 #define SIZEMAXMSGSIZE 2048
 typedef struct structMSGSTRU
 {

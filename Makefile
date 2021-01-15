@@ -1,19 +1,20 @@
-#get the all base root dir:
+#get the all BASE BASE dir:
 
-export ROOT :=$(shell pwd)
+export BASE :=$(shell pwd)
 
-include $(ROOT)/mkEnv.mk
+include $(BASE)/mkEnv.mk
 
 
 
 #append your new project into the below list: ------------
 PROJECTS := libCom \
-	test1
+			test1 
+	
 
 
 #map the project and its folder:
-project_libCom      :=$(ROOT)/libCom
-project_test1       :=$(ROOT)/test-program
+project_libCom      :=$(BASE)/library-prjs/libCom
+project_test1       :=$(BASE)/bin-prjs/test-program
 
 
 #projects depends list:
@@ -38,15 +39,21 @@ all:help
 help:
 	@echo  "-----------------------------------------------"
 	@j=0; for i in $(PROJECTS); do  printf %-30s $$i; done
-	@echo  "\n-------------- projects list end"
+	@echo  "-------------- projects list end --------------"
 	@echo  "-- make all"
 	@echo  "-- make clean"
 	@echo  "-- make [project name]"
 	@echo  "-- make [project name]_clean"
 
 
-build: $(build-all-list)
+build: dummy $(build-all-list)
 	$(call endtimer, $@)
+
+#create the install folder.
+dummy: 
+	$(shell mkdir -p $(BASE)/bin/)
+	$(shell mkdir -p $(BASE)/lib/)
+	$(shell mkdir -p $(BASE)/maps/)
 
 
 clean: $(clean-all-list)
@@ -61,32 +68,35 @@ clean_all: clean
 
 
 $(build-all-list):
-	#$(call starttimer,$@)
+	@echo $(build-all-list)
+	@echo "$(build_depend)"
+	@echo "-------------------111"
 	$(call build_depend)
-	#$(call print_build_info,$@)
+	@echo "-------------------22"
 	$(MAKE) -C $(call getFolder,$(patsubst %,%,$@)) -f $(call getMakefile,$(patsubst %,%,$@)) all $($(patsubst %,%,$@)_params)
-	#$(call endtimer,$@)
 
 
 $(clean-all-list):
 	@echo $(clean-all-list)
 	$(call clean_depend)
-	#$(call print_clean_info,$@)
-	@$(MAKE) -C $(call getFolder,$(patsubst %_clean,%,$@)) -f $(call getMakefile,$(patsubst %_clean,%,$@)) clean $($(patsubst %_clean,%,$@)_params)
+	$(MAKE) -C $(call getFolder,$(patsubst %_clean,%,$@)) -f $(call getMakefile,$(patsubst %_clean,%,$@)) clean $($(patsubst %_clean,%,$@)_params)
 
 
-.PHONY: all help build clean $(all-build-list)
+.PHONY: all help build clean $(all-build-list) dummy
 
 
 
 #To build the dependency of project.
-build_depend = $(OUTPUT_FILE) \
+#$(MAKECMDGOALS): this is End Goal List. It will help us to handle loop case.
+#For make build: it will follow the project list order. The depend rule will not be called.
+#for make [projec_name]: it will use the depend rule.
+build_depend =  \
 	if [ "$(MAKECMDGOALS)" = "$@" ]; then \
-		echo "Build the $@";  \
+		echo "try to build the $@";  \
 		$(foreach dep,$(depend_$(notdir $(patsubst %,%,$@))), \
-		$(shell $(MAKE) -C $(call getFolder,$(patsubst %,%,$(dep))) -f $(call getMakefile,$(patsubst %,%,$(dep))) all $($(patsubst %,%,$(dep))_params);); \
-		if [ $$? -ne 0 ]; then echo -e "\t$(COLOR_RED)Dependency project:$(dep) Build Failed!!!!$(COLOR_END)\n"; exit 1;fi;) \
-	fi
+		$(MAKE) -C $(call getFolder,$(patsubst %,%,$(dep))) -f $(call getMakefile,$(patsubst %,%,$(dep))) all $($(patsubst %,%,$(dep))_params); \
+		if [ $$? -ne 0 ]; then echo "Dependency project:$(dep) Build Failed!!!!"; exit 1;fi;) \
+	fi;
 #To clean the dependency of project.
 clean_depend = $(OUTPUT_FILE) \
 	if [ "$(MAKECMDGOALS)" = "$@" ]; then\
@@ -96,28 +106,3 @@ clean_depend = $(OUTPUT_FILE) \
 		if [ $$? -ne 0 ]; then echo -e "\t$(COLOR_RED)Dependency project:$(dep) Clean Failed!!!!$(COLOR_END)\n"; fi;) \
 	fi;
 
-#To build the build information of project to console and log file.
-# print_build_info = \
-# 	@echo  "********************************************************************"; \
-# 	@echo "** Build $1 : $(shell date -R)$(COLOR_END)"; \
-# 	@echo "********************************************************************"; \
-# 	@echo "*-----------------------------------------------------------">>$(LOG_FILE); \
-# 	@echo "* Build $1:$(shell date -R)"                             >>$(LOG_FILE); \
-# 	@echo "*-----------------------------------------------------------">>$(LOG_FILE)
-
-# #To build the clean information of project to console and log file.
-# print_clean_info = \
-# 	echo -e "$(COLOR_RED)---------------------------- $(1) ----------------------------$(COLOR_END)"; \
-# 	echo -e "$---------------------------- $(1) ----------------------------">>$(LOG_FILE)
-
-# #To record the start time of compile.
-# starttimer = @ echo $(shell date +%s.%N) > $(BUILD_TMP_FOLDER)/$1.tmstmp
-
-# #To end the timer; Compute the time of compile and write to the console the file.
-# endtimer = $(OUTPUT_FILE) \
-# 	srt=`cat $(BUILD_TMP_FOLDER)/$1.tmstmp`; \
-# 	end=`date +%s.%N`; \
-# 	echo -e "\n$(COLOR_LIGHT_GREEN)@@@@@@ Build $1 Finished (took \
-# 	$$[1000*$$[$$(echo $$end|cut -d '.' -f 1)-$$(echo $$srt|cut -d '.' -f 1)] \
-# 	+ $$[10\#$$(echo $$end|cut -d '.' -f 2)-10\#$$(echo $$srt|cut -d '.' -f 2)]/1000000] \
-# 	ms) @@@@@@@@$(COLOR_END)\n">&2

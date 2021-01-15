@@ -1,25 +1,28 @@
 #include <comlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 int PrintLog(FILE* pfile, const char * pformat, ...)
 {
 	va_list _va_list;
 	TIMESTRU timestru;
 	char szBuf[MAXBUF];
 	int nLen;
-	if (pformat == NULL || pfile == NULL) return -1; 	/* ÅÐ¶ÏÖ¸ÕëÊÇ·ñÕýÈ·*/
+	if (pformat == NULL || pfile == NULL) return -1; 	/* ï¿½Ð¶ï¿½Ö¸ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·*/
 	timestru = GetTime();
 	nLen = sprintf(szBuf, " %04d.%02d.%02d %02d:%02d:%02d [%d]: ",
 		timestru.nYear, timestru.nMon, timestru.nDay,
 		timestru.nHour, timestru.nMin, timestru.nSec, getpid());
 		
-	va_start(_va_list, pformat); 				/* ³õÊ¼»¯±ä³¤²ÎÊýÁÐ±í */
-	nLen += vsprintf(szBuf+nLen, pformat, _va_list); 	/* ´«µÝ±ä³¤²ÎÊý */
-	va_end(_va_list); 					/* ½áÊøÊ¹ÓÃ±ä³¤²ÎÊýÁÐ±í */
+	va_start(_va_list, pformat); 				/* ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ä³¤ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ */
+	nLen += vsprintf(szBuf+nLen, pformat, _va_list); 	/* ï¿½ï¿½ï¿½Ý±ä³¤ï¿½ï¿½ï¿½ï¿½ */
+	va_end(_va_list); 					/* ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã±ä³¤ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ */
 	
-	nLen += sprintf(szBuf + nLen, "\n");			/* Ìí¼Ó»»ÐÐ·û */
-	if (fputs(szBuf, pfile) != EOF && fflush(pfile) != EOF) return 0;/*  Êä³ö²¢Ë¢ÐÂÎÄ¼þÁ÷ */
-	return -2;						/* ´íÎó·µ»Ø */
+	nLen += sprintf(szBuf + nLen, "\n");			/* ï¿½ï¿½ï¿½Ó»ï¿½ï¿½Ð·ï¿½ */
+	if (fputs(szBuf, pfile) != EOF && fflush(pfile) != EOF) return 0;/*  ï¿½ï¿½ï¿½ï¿½ï¿½Ë¢ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ */
+	return -2;						/* ï¿½ï¿½ï¿½ó·µ»ï¿½ */
 }
 
 int PrintTraceLog(const char* pformat, ...)
@@ -28,7 +31,7 @@ int PrintTraceLog(const char* pformat, ...)
 	char szBuf[MAXBUF];
  	FILE *fp;
  	int ret;
-	if (pformat == NULL) return -1; 	/* ÅÐ¶ÏÖ¸ÕëÊÇ·ñÕýÈ·*/
+	if (pformat == NULL) return -1; 	/* ï¿½Ð¶ï¿½Ö¸ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·*/
 		
  	va_start(_va_list, pformat);		  
  	vsprintf(szBuf, pformat, _va_list);     
@@ -36,8 +39,8 @@ int PrintTraceLog(const char* pformat, ...)
 
  	if ((fp = fopen(TRACE_FILE, "a")) != NULL)
  	{
- 		ret = PrintLog(fp, szBuf);	/* Ð´ÈÕÖ¾ÎÄ¼þ */
- 		fclose(fp);			/* ¹Ø±ÕÈÕÖ¾ÎÄ¼þ */
+ 		ret = PrintLog(fp, szBuf);	/* Ð´ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ */
+ 		fclose(fp);			/* ï¿½Ø±ï¿½ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ */
 	 	return(ret);
  	}
  	return -1;
@@ -55,24 +58,24 @@ int PrintHexLog(FILE* pfile, void * pData, int nSize)
 	nLen = sprintf(szBuf, "address[%08X] size[%d]\n", pData, nSize);
 	for (nPos = 0; nPos < nSize; nLine++)
 	{
-		nLineSize = min(nSize - nPos, 16);		/* ·ÀÖ¹×îºóÒ»ÐÐÊý¾Ý²»×ã */
+		nLineSize = min(nSize - nPos, 16);		/* ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ý²ï¿½ï¿½ï¿½ */
 		memcpy(cLine, pcData + nPos, nLineSize);
 		nPos += nLineSize;
 		nLen += sprintf(szBuf + nLen, "[%02d]:  ", nLine);
 		for (n = 0; n < nLineSize; n++)
 		{
-			if (n == 8) nLen += sprintf(szBuf + nLen, " ");/* µÚ8¸ö×Ö½Úºó¿Õ¸ñ */
+			if (n == 8) nLen += sprintf(szBuf + nLen, " ");/* ï¿½ï¿½8ï¿½ï¿½ï¿½Ö½Úºï¿½Õ¸ï¿½ */
 			nLen += sprintf(szBuf + nLen, "%02X ", cLine[n] & 0x00FF);
 		}
-		for (n = nLineSize; n < 16; n++)	/* ×îºóÒ»ÐÐ²¹¿Õ¸ñ */
+		for (n = nLineSize; n < 16; n++)	/* ï¿½ï¿½ï¿½Ò»ï¿½Ð²ï¿½ï¿½Õ¸ï¿½ */
 		{
 			if (n == 8) nLen += sprintf(szBuf + nLen, " ");
 			nLen += sprintf(szBuf + nLen, "   ");
 		}
 		nLen += sprintf(szBuf + nLen, " :");
-		for (n = 0; n < nLineSize; n++)		/* ÒÔ×Ö·ûÏÔÊ¾ÄÚ´æÊý¾Ý */
+		for (n = 0; n < nLineSize; n++)		/* ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Ê¾ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ */
 		{
-			if (!isprint(cLine[n])) cLine[n] = '.';	/* ÒÔ¡°.¡±ÏÔÊ¾·Ç´òÓ¡×Ö·û */
+			if (!isprint(cLine[n])) cLine[n] = '.';	/* ï¿½Ô¡ï¿½.ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ç´ï¿½Ó¡ï¿½Ö·ï¿½ */
 			nLen += sprintf(szBuf + nLen, "%c", cLine[n]);
 		}
 		nLen += sprintf(szBuf + nLen, "\n");
@@ -87,8 +90,8 @@ int PrintTraceHexLog(void * pData, int nSize)
  	int ret;
  	if ((fp = fopen(TRACE_FILE, "a")) != NULL)
  	{
- 		ret = PrintHexLog(fp, pData, nSize);	/* Ð´ÈÕÖ¾ÎÄ¼þ */
- 		fclose(fp);				/* ¹Ø±ÕÈÕÖ¾ÎÄ¼þ */
+ 		ret = PrintHexLog(fp, pData, nSize);	/* Ð´ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ */
+ 		fclose(fp);				/* ï¿½Ø±ï¿½ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ */
 	 	return(ret);
  	}
  	return -1;
@@ -102,9 +105,9 @@ int Verify(int bStatus, const char* szBuf, const char* szFile, int nLine)
 	{
 		memset(szFileLine, 0, sizeof(szFileLine));       
 		memset(szError, 0, sizeof(szError));
-		if (errno != 0) sprintf(szError, "\t> %0.64s\n", strerror(errno));
+		if (errno != 0) sprintf(szError, "\t> %-64s\n", strerror(errno));
 		if (szFile == NULL) strcpy(szFileLine, "\t> Invalid file name");
-		else sprintf(szFileLine, "\t> In line %d file %0.32s", nLine, szFile);
+		else sprintf(szFileLine, "\t> In line %d file %-32s", nLine, szFile);
 		if (szBuf == NULL)  szBuf = "";
 		fp = fopen(TRACE_FILE, "a");
 		if (fp != NULL)
