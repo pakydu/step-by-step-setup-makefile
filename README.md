@@ -5,3 +5,12 @@ Linux下面如何一步一个的通过makefile来管理工程
     > Makefile: 整个是整个工程的makefile,你可以在里面按照一定的规则添加新的小工程进来.
     > 当前有两个小工程,一个是bin文件的编译,一个是sharelibrary的编译.
 - 基本上我们可以整个makefile的架构去组织自己的大型项目了,这样也就方便我们集成我们的软件项目的自动测试和的脚本发布.
+
+
+使用变量覆盖的方式切换编译工具链：
+- makefile里面用CC ?= gcc
+- 在命令行重新定义CC, 如make CC=aarch64-linux-gnu-gcc， 那么就会使用这个CC替换makefile里面的gcc， 如果CC没有定义，那就使用gcc。
+
+
+
+
