@@ -45,7 +45,11 @@ IFLAGS:=  \
 
 
 CFLAGS+=-D$(ARCH_TYPE) 
-LDFLAGS+= -Wl,-rpath-link $(ROOTFS_PATH)/usr/local/lib -L$(ROOTFS_PATH)/usr/local/lib
+#-rpath和-rpath-link都可以在链接时指定库的路径；
+#     运行可执行文件时，-rpath-link指定的路径不再有效(链接器没有将库的路径包含进可执行文件中)，
+#     而-rpath指定的路径还有效(因为链接器已经将库的路径包含在可执行文件中)；
+#-L指定的是链接时的库路径，生成的可执行文件在运行时库的路径仍由LD_LIBRARY_PATH环境变量指定；
+LDFLAGS+= -Wl,-rpath-link $(ROOTFS_PATH)/usr/local/lib -L$(ROOTFS_PATH)/usr/local/lib  -Wl,-rpath=/usr/local/lib
 #LDFLAGS+= -Wl,-rpath-link $(SYSROOTS)/lib -Wl,-rpath-link $(SYSROOTS)/usr/lib -L$(SYSROOTS)/lib -L$(SYSROOTS)/usr/lib \
 #		-L$(TOOLCHAIN_PATH)/aarch64-linux-gnu/libc/lib \
 #		-Wl,-rpath-link $(ROOTFS_PATH)/usr/local/lib -L$(ROOTFS_PATH)/usr/local/lib

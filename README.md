@@ -355,6 +355,40 @@ Linux下面如何一步一个的通过makefile来管理工程
 
 ~~~
 
+## 函数：
+~~~
+语法 ： $(<function> <arguments>) 
+字符串函数
+$(subst <from>,<to>,<text>) ： 把字串<text>中的<from>字符串替换成<to>
+$(patsubst <pattern>,<replacement>,<text>) ：模式字符串替换函数
+$(patsubst %.o,%.c,$(objects)) = $(objects:.o=.c)
+$(strip <string>) ： 去空格函数
+$(findstring <find>,<in>) ： 查找字符串函数
+$(filter <pattern...>,<text>) ：过滤函数
+sources := foo.c bar.c baz.s ugh.h
+$(filter %.c %.s,$(sources))返回的值是“foo.c bar.c baz.s”
+$(filter-out <pattern...>,<text>) ： 反过滤函数
+$(sort <list>) ： 排序函数
+$(word <n>,<text>) ，$(wordlist <s>,<e>,<text>) ，$(words <text>) ，$(firstword <text>) 
+
+文件名操作函数
+$(dir <names...>) ：取目录函数
+$(notdir <names...>) ： 取文件函数
+$(suffix <names...>)  ：取后缀函数
+$(basename <names...>) ： 取前缀函数
+$(addsuffix <suffix>,<names...>)  ：加后缀函数
+$(addprefix <prefix>,<names...>)  ： 加前缀函数
+$(join <list1>,<list2>) ： 连接函数
+foreach 函数 
+$(foreach <var>,<list>,<text>) 
+es := a b c d 
+files := $(foreach n,$(names),$(n).o) ===>a.o b.o c.o d.o
+if 函数
+origin函数 : 告诉变量是哪里来的
+“undefined”,“default” ,“environment",“file”  ,“command line” ,“override” ,“automatic” 
+shell
+
+~~~
 
 
 
