@@ -59,7 +59,7 @@ else
 ###############################
 #     arm-linux-gnu-gcc       #
 ###############################
-ifeq ($(ARCH), "arm)
+ifeq ($(ARCH), arm)
 echo "we will do the arm32 ........"
 $(error "It will be supported by later.")
 else
@@ -68,7 +68,7 @@ else
 #     gcc      It will use the system defautl  tool                                            #
 #     If you want to tool the code in the product Os, you can use the "x86" for your projects. #
 ################################################################################################
-ifeq ($(ARCH), "x86)
+ifeq ($(ARCH), x86)
 echo "we will do the x86........"
 export ROOTFS_PATH:=$(ROOT_BASE)/root_fs/rootfs_x86
 
